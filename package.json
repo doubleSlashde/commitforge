@@ -1,0 +1,160 @@
+{
+  "name": "commitforge",
+  "displayName": "CommitForge – AI Commit & PR Generator",
+  "description": "Generate commit messages and PR descriptions with one click using Claude Code CLI or a local Ollama server. Supports Conventional Commits, custom formats, per-project configuration, and optional user hints.",
+  "version": "1.3.5",
+  "publisher": "doubleslash",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/doubleSlashde/commitforge"
+  },
+  "homepage": "https://github.com/doubleSlashde/commitforge#readme",
+  "bugs": {
+    "url": "https://github.com/doubleSlashde/commitforge/issues"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "SCM Providers",
+    "Other"
+  ],
+  "keywords": [
+    "claude",
+    "commit",
+    "ai",
+    "conventional-commits",
+    "git",
+    "commit-message",
+    "anthropic",
+    "scm",
+    "ollama",
+    "on-premise",
+    "pull-request",
+    "merge-request"
+  ],
+  "icon": "images/icon.png",
+  "galleryBanner": {
+    "color": "#1a1a2e",
+    "theme": "dark"
+  },
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "commitGen.generate",
+        "title": "Generate Commit Message",
+        "icon": "$(sparkle)"
+      },
+      {
+        "command": "commitGen.generatePR",
+        "title": "Generate PR Description",
+        "icon": "$(git-pull-request)"
+      }
+    ],
+    "menus": {
+      "scm/title": [
+        {
+          "command": "commitGen.generate",
+          "group": "navigation@1",
+          "when": "scmProvider == git",
+          "enablement": "commitGen.providerAvailable"
+        },
+        {
+          "command": "commitGen.generatePR",
+          "group": "navigation@2",
+          "when": "scmProvider == git",
+          "enablement": "commitGen.providerAvailable"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "CommitForge",
+      "properties": {
+        "commitGen.provider": {
+          "type": "string",
+          "default": "claude",
+          "enum": [
+            "claude",
+            "ollama"
+          ],
+          "enumDescriptions": [
+            "Claude Code CLI (requires npm install -g @anthropic-ai/claude-code)",
+            "Ollama server (OpenAI-compatible API)"
+          ],
+          "markdownDescription": "AI provider for commit message generation. `claude` uses the Claude Code CLI, `ollama` connects to a local or on-premise Ollama server."
+        },
+        "commitGen.ollama.url": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Ollama server URL (e.g. `https://ollama.example.com`). Only used when `#commitGen.provider#` is `ollama`."
+        },
+        "commitGen.ollama.model": {
+          "type": "string",
+          "default": "qwen3:32b",
+          "markdownDescription": "Ollama model name (e.g. `qwen3-coder:latest`, `codellama:latest`). Only used when `#commitGen.provider#` is `ollama`."
+        },
+        "commitGen.ollama.apiKey": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "API key for the Ollama server (if required). Leave empty if no authentication is needed. Only used when `#commitGen.provider#` is `ollama`."
+        },
+        "commitGen.format": {
+          "type": "string",
+          "default": "conventional",
+          "enum": [
+            "conventional",
+            "descriptive",
+            "custom"
+          ],
+          "enumDescriptions": [
+            "Conventional Commits (feat:, fix:, chore:, ...)",
+            "Descriptive multi-line summary",
+            "Custom template from commitGen.customTemplate"
+          ],
+          "markdownDescription": "Commit message format. Use `custom` with `#commitGen.customTemplate#` for your own format."
+        },
+        "commitGen.customTemplate": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Custom prompt for commit message format. Only used when `#commitGen.format#` is set to `custom`. Example: `Format: [JIRA-ID] short description`"
+        },
+        "commitGen.language": {
+          "type": "string",
+          "default": "en",
+          "enum": [
+            "en",
+            "de"
+          ],
+          "enumDescriptions": [
+            "English",
+            "Deutsch"
+          ],
+          "description": "Language for generated commit messages."
+        },
+        "commitGen.maxDiffLines": {
+          "type": "number",
+          "default": 500,
+          "description": "Maximum number of diff lines sent to the AI provider. Larger diffs are truncated."
+        },
+        "commitGen.pr.targetBranch": {
+          "type": "string",
+          "default": "main",
+          "markdownDescription": "Target branch for PR description generation. The diff and commits are compared against this branch. Common values: `main`, `develop`, `master`."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "npx @vscode/vsce package --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0"
+  }
+}

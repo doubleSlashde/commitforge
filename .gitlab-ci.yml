@@ -1,0 +1,45 @@
+stages:
+  - build
+  - release
+
+variables:
+  NODE_IMAGE: node:20-alpine
+
+build:
+  stage: build
+  image: $NODE_IMAGE
+  script:
+    - npm ci
+    - npx tsc -p ./
+    - npx @vscode/vsce package --no-dependencies --allow-missing-repository
+    - VSIX_FILE=$(ls *.vsix)
+    - echo "BUILD_JOB_ID=$CI_JOB_ID" > build.env
+    - echo "VSIX_FILE=$VSIX_FILE" >> build.env
+  artifacts:
+    paths:
+      - "*.vsix"
+    reports:
+      dotenv: build.env
+    expire_in: never
+  rules:
+    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+release:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  needs:
+    - job: build
+      artifacts: true
+  script:
+    - echo "Creating release for $CI_COMMIT_TAG"
+  release:
+    tag_name: $CI_COMMIT_TAG
+    name: "commit-gen $CI_COMMIT_TAG"
+    description: "VS Code Extension – Commit Message Generator via Claude Code CLI or on-premise Ollama server"
+    assets:
+      links:
+        - name: "${VSIX_FILE}"
+          url: "${CI_PROJECT_URL}/-/jobs/${BUILD_JOB_ID}/artifacts/file/${VSIX_FILE}"
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/

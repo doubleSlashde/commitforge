@@ -2,7 +2,7 @@
   "name": "commitforge",
   "displayName": "CommitForge – AI Commit & PR Generator",
   "description": "Generate commit messages and PR descriptions with one click using Claude Code CLI or a local Ollama server. Supports Conventional Commits, custom formats, per-project configuration, and optional user hints.",
-  "version": "1.3.5",
+  "version": "1.3.6",
   "publisher": "doubleslash",
   "license": "MIT",
   "repository": {
